@@ -1,0 +1,127 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#############################################################################
+# To run this file, make sure python 2.7 is installed on your machine and in
+# your machine's path. On the command line, run
+# > python challenges-tester.py PATH_OF_COMPLETED_CHALLENGE.py
+# and it should tell you that everything passed.
+#############################################################################
+import imp as _imp
+import os as _os
+
+
+def import_file(fpath):
+    """
+    fpath - the relative or absolute path to the .py file which is imported.
+
+    Returns the imported module.
+
+    NOTE: if import_file is called twice with the same module, the module is reloaded.
+    """
+    if hasattr(_os, 'getcwdu'):
+        # python 2 returns question marks in os.path.realpath for
+        # ascii input (eg '.').
+        original_path = _os.path.realpath(_os.getcwdu())
+    else:
+        original_path = _os.path.realpath(_os.path.curdir)
+    dst_path = _os.path.dirname(fpath)
+    if dst_path == '':
+        dst_path = '.'
+
+    # remove the .py suffix
+    script_name = _os.path.basename(fpath)
+    if script_name.endswith('.py'):
+        mod_name = script_name[:-3]
+    else:
+        # packages for example.
+        mod_name = script_name
+
+    _os.chdir(dst_path)
+    fhandle = None
+    try:
+        tup = _imp.find_module(mod_name, ['.'])
+        module = _imp.load_module(mod_name, *tup)
+        fhandle = tup[0]
+    finally:
+        _os.chdir(original_path)
+        if fhandle is not None:
+            fhandle.close()
+
+    return module
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Run test cases on challenges")
+    parser.add_argument('PATH', help="The path to the completed challenges file", type=unicode)
+    args = parser.parse_args()
+    challenges = import_file(_os.path.abspath(args.PATH))
+    assert challenges.unscramble('') == ''
+    assert challenges.unscramble('x') == 'x'
+    assert challenges.unscramble('obb') == 'bob'
+    assert challenges.unscramble('1234567') == '3241657'
+    assert challenges.unscramble('abcdefghijklmno') == 'dcebgfhakjlinmo'
+    assert challenges.run_controller('aa', [('^aa', lambda: 1), ('^aab', lambda: 2)]) == 1
+    assert challenges.run_controller('aab', [('^aa', lambda: 1), ('^aab', lambda: 2)]) == 1
+    assert challenges.run_controller('aa', [('^aab', lambda: 2), ('^aa', lambda: 1)]) == 1
+    assert challenges.run_controller('aab', [('^aab', lambda: 2), ('^aa', lambda: 1)]) == 2
+    assert challenges.run_controller('  t#22 \t {', [('\s*([^\s].*?)\s*{', lambda x: x.upper())]) == 'T#22'
+    assert challenges.run_controller('  t#2asdf 4 2 \t {', [('\s*([^\s].*?)\s*{', lambda x: x.upper())]) == 'T#2ASDF 4 2'
+    assert challenges.run_controller('/add/351/1024', challenges.calcroutes) == '1375'
+    assert challenges.run_controller('/add/1024/351', challenges.calcroutes) == '1375'
+    assert challenges.run_controller('/add/0/9223', challenges.calcroutes) == '9223'
+    assert challenges.run_controller('/add/0/13', challenges.calcroutes) == '13'
+    assert challenges.run_controller('/add/6005/0', challenges.calcroutes) == '6005'
+    assert challenges.run_controller('/add/48/0', challenges.calcroutes) == '48'
+    assert challenges.run_controller('/add/1/9631', challenges.calcroutes) == '9632'
+    assert challenges.run_controller('/add/1/38', challenges.calcroutes) == '39'
+    assert challenges.run_controller('/add/5018/1', challenges.calcroutes) == '5019'
+    assert challenges.run_controller('/add/58/1', challenges.calcroutes) == '59'
+    assert challenges.run_controller('/add/4439/9208', challenges.calcroutes) == '13647'
+    assert challenges.run_controller('/add/8907/73', challenges.calcroutes) == '8980'
+    assert challenges.run_controller('/add/5/9908', challenges.calcroutes) == '9913'
+    assert challenges.run_controller('/add/55/60', challenges.calcroutes) == '115'
+    assert challenges.run_controller('/mult/152/223', challenges.calcroutes) == '33896'
+    assert challenges.run_controller('/mult/223/152', challenges.calcroutes) == '33896'
+    assert challenges.run_controller('/mult/0/5879', challenges.calcroutes) == '0'
+    assert challenges.run_controller('/mult/0/52', challenges.calcroutes) == '0'
+    assert challenges.run_controller('/mult/9377/0', challenges.calcroutes) == '0'
+    assert challenges.run_controller('/mult/27/0', challenges.calcroutes) == '0'
+    assert challenges.run_controller('/mult/1/2281', challenges.calcroutes) == '2281'
+    assert challenges.run_controller('/mult/1/100', challenges.calcroutes) == '100'
+    assert challenges.run_controller('/mult/3350/1', challenges.calcroutes) == '3350'
+    assert challenges.run_controller('/mult/28/1', challenges.calcroutes) == '28'
+    assert challenges.run_controller('/mult/4940/9079', challenges.calcroutes) == '44850260'
+    assert challenges.run_controller('/mult/4384/1', challenges.calcroutes) == '4384'
+    assert challenges.run_controller('/mult/26/3063', challenges.calcroutes) == '79638'
+    assert challenges.run_controller('/mult/2/90', challenges.calcroutes) == '180'
+    assert challenges.run_controller('/max/890/54', challenges.calcroutes) == '890'
+    assert challenges.run_controller('/max/54/890', challenges.calcroutes) == '890'
+    assert challenges.run_controller('/max/1067/1067', challenges.calcroutes) == '1067'
+    assert challenges.run_controller('/max/0/7603', challenges.calcroutes) == '7603'
+    assert challenges.run_controller('/max/0/13', challenges.calcroutes) == '13'
+    assert challenges.run_controller('/max/3185/0', challenges.calcroutes) == '3185'
+    assert challenges.run_controller('/max/99/0', challenges.calcroutes) == '99'
+    assert challenges.run_controller('/max/1/7304', challenges.calcroutes) == '7304'
+    assert challenges.run_controller('/max/1/45', challenges.calcroutes) == '45'
+    assert challenges.run_controller('/max/6212/1', challenges.calcroutes) == '6212'
+    assert challenges.run_controller('/max/99/1', challenges.calcroutes) == '99'
+    assert challenges.run_controller('/max/3152/6686', challenges.calcroutes) == '6686'
+    assert challenges.run_controller('/max/1144/48', challenges.calcroutes) == '48'
+    assert challenges.run_controller('/max/23/4060', challenges.calcroutes) == '4060'
+    assert challenges.run_controller('/max/39/43', challenges.calcroutes) == '43'
+    assert challenges.run_controller('/uniquedigits/890/54', challenges.calcroutes) == 'Yes'
+    assert challenges.run_controller('/uniquedigits/54/890', challenges.calcroutes) == 'Yes'
+    assert challenges.run_controller('/uniquedigits/1067/1067', challenges.calcroutes) == 'No'
+    assert challenges.run_controller('/uniquedigits/0/9049', challenges.calcroutes) == 'No'
+    assert challenges.run_controller('/uniquedigits/0/36', challenges.calcroutes) == 'Yes'
+    assert challenges.run_controller('/uniquedigits/1170/0', challenges.calcroutes) == 'No'
+    assert challenges.run_controller('/uniquedigits/84/0', challenges.calcroutes) == 'Yes'
+    assert challenges.run_controller('/uniquedigits/1/9307', challenges.calcroutes) == 'Yes'
+    assert challenges.run_controller('/uniquedigits/1/85', challenges.calcroutes) == 'Yes'
+    assert challenges.run_controller('/uniquedigits/3655/1', challenges.calcroutes) == 'Yes'
+    assert challenges.run_controller('/uniquedigits/35/1', challenges.calcroutes) == 'Yes'
+    assert challenges.run_controller('/uniquedigits/7895/1731', challenges.calcroutes) == 'No'
+    assert challenges.run_controller('/uniquedigits/1526/51', challenges.calcroutes) == 'No'
+    assert challenges.run_controller('/uniquedigits/23/5167', challenges.calcroutes) == 'Yes'
+    assert challenges.run_controller('/uniquedigits/16/97', challenges.calcroutes) == 'Yes'
+    print "Everything passed OK!"
