@@ -1,3 +1,13 @@
+(setq coffee-tab-width 4)
+
+(require 'package)
+(package-initialize)
+(elpy-enable)
+;; Add a repo to the packages list
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("marmalade" . "http://marmalade-repo.org/packages/")
+                         ("melpa" . "http://melpa.milkbox.net/packages/")))
+
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -37,6 +47,8 @@
 (load "duplicate.el")
 (load "shift_line.el")
 (load "visws.el")
+;;(load "setnu.el")
+(add-hook 'text-mode-hook 'turn-on-setnu-mode)
 
 ;; Bind Ctrl+c g as goto-line command
 (global-set-key "\C-cg" 'goto-line)
@@ -63,3 +75,4 @@
 (add-hook 'javascript-mode-hook 
       '(lambda() 
         (setq tab-width 2)))
+
